@@ -22,7 +22,12 @@
     document.getElementById('openDirectoryButton').addEventListener('click', async () => {
         // open directory picker
         const rootDirectoryHandle = await window.showDirectoryPicker();
-        // list files recurisvely
+        updateUi(rootDirectoryHandle);
+    });
+
+
+
+    async function updateUi(rootDirectoryHandle) {
         app.fileInfos = await listFiles(rootDirectoryHandle);
 
         // clear ui container
@@ -58,16 +63,14 @@
                     writable.close();
 
                     await dirHandle.removeEntry(handle.name);
+                    updateUi(rootDirectoryHandle);
                 });
             }
             table.appendChild(tr);
-            filesContainer.appendChild(li);
 
         });
 
-    });
-
-
+    }
 
 
     function addTableToContainer(container) {
