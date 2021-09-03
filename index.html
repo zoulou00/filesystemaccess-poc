@@ -7,7 +7,7 @@
     </body>
     <script>
         const app = {};
-        document.getElementById('openDirectoryButton').addEventListener('click', () => {
+        document.getElementById('openDirectoryButton').addEventListener('click', async () => {
              app.directoryHandle = await window.showDirectoryPicker();
              console.log(app.directoryHandle);
         });
