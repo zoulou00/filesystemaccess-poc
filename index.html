@@ -1,0 +1,18 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <button id="openDirectoryButton">Open directory</button>
+    </body>
+    <script>
+        const app = {};
+        document.getElementById('openDirectoryButton').addEventListener('click', () => {
+             app.directoryHandle = await window.showDirectoryPicker();
+             console.log(app.directoryHandle);
+        });
+        
+
+
+    </script>
+</html>
