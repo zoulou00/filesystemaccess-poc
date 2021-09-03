@@ -12,6 +12,7 @@
     </div>
 </body>
 
+<script src="./idb-keyval.js" inline></script>
 <script src="./utilities.js" inline></script>
 <script>
     const app = {};
@@ -22,10 +23,9 @@
     document.getElementById('openDirectoryButton').addEventListener('click', async () => {
         // open directory picker
         const rootDirectoryHandle = await window.showDirectoryPicker();
+        saveDirectoryAsRecent(rootDirectoryHandle);
         updateUi(rootDirectoryHandle);
     });
-
-
 
     async function updateUi(rootDirectoryHandle) {
         app.fileInfos = await listFiles(rootDirectoryHandle);
@@ -91,6 +91,14 @@
         container.appendChild(table);
         return table;
     }
+
+
+    (async function () {
+        const dirHandle = await loadRecentDirectory();
+        if (dirHandle) {
+            updateUi(dirHandle);
+        }
+    })();
 
 </script>
 
