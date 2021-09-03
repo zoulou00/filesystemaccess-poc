@@ -1,15 +1,14 @@
+const getPersistedHandle = () => {
+    return idbKeyval.get('directory');
+};
 
-
-const loadRecentDirectory = async () => {
-    const directoryHandle = await idbKeyval.get('directory');
-    if(directoryHandle && (await verifyPermission(directoryHandle))) {
-        return directoryHandle;
-    }
-}
+const clearHandle = () => {
+    idbKeyval.clear();
+};
 
 const saveDirectoryAsRecent = (dirHandle) => {
     idbKeyval.set('directory', dirHandle);
-}
+};
 
 const listFiles = async (dirHandle) => {
     const files = [];
@@ -25,7 +24,7 @@ const listFiles = async (dirHandle) => {
 };
 
 const verifyPermission = async (handle) => {
-    const opts = { mode: 'read' , writeable: true};
+    const opts = { mode: 'read', writeable: true };
     console.log('queryPermission');
     console.log(await handle.queryPermission(opts));
     console.log('requestPermission');

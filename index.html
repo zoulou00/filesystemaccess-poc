@@ -6,7 +6,8 @@
 
 <body>
     <button id="openDirectoryButton">Open directory</button>
-
+    <button id="reopenDirectoryButton" style="opacity:  0;">Reopen previous directory</button>
+    <button id="clearIndexedDbButton" style="opacity: 0;">Clear IndexedDb</button>
     <div id="filesContainer">
 
     </div>
@@ -17,14 +18,32 @@
 <script>
     const app = {};
     const filesContainer = document.getElementById("filesContainer");
+    const openDirectoryButton = document.getElementById("openDirectoryButton");
+    const reopenDirectoryButton = document.getElementById("reopenDirectoryButton");
+    const clearIndexedDbButton = document.getElementById("clearIndexedDbButton");
 
     const temporaryFolder = 'temporary';
 
-    document.getElementById('openDirectoryButton').addEventListener('click', async () => {
+
+    // buttons handlers
+    openDirectoryButton.addEventListener('click', async () => {
         // open directory picker
         const rootDirectoryHandle = await window.showDirectoryPicker();
         saveDirectoryAsRecent(rootDirectoryHandle);
         updateUi(rootDirectoryHandle);
+        updateOpacityButtons(1);
+    });
+
+    reopenDirectoryButton.addEventListener('click', async () => {
+        const persistedHandle = await getPersistedHandle();
+        if (persistedHandle && await verifyPermission(persistedHandle)) {
+            updateUi(persistedHandle);
+        }
+    });
+
+    clearIndexedDbButton.addEventListener('click', async () => {
+        clearHandle();
+        updateOpacityButtons(0);
     });
 
     async function updateUi(rootDirectoryHandle) {
@@ -86,19 +105,30 @@
         actionTh.appendChild(document.createTextNode(''));
 
         tr.appendChild(fileTh, actionTh);
-
-
         container.appendChild(table);
+
         return table;
     }
 
-
-    (async function () {
-        const dirHandle = await loadRecentDirectory();
-        if (dirHandle) {
-            updateUi(dirHandle);
+    async function loadPersistedHandleIfExist() {
+        const persistedHandle = await getPersistedHandle();
+        if (persistedHandle) {
+            updateOpacityButtons(1);
+            if (await verifyPermission(persistedHandle)) {
+                updateUi(persistedHandle);
+            }
+        } else {
+            updateOpacityButtons(0);
         }
-    })();
+    }
+
+    function updateOpacityButtons(opacity) {
+        reopenDirectoryButton.style.opacity = opacity;
+        clearIndexedDbButton.style.opacity = opacity;
+    }
+
+    loadPersistedHandleIfExist();
+
 
 </script>
 
