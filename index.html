@@ -1,18 +1,96 @@
 <html>
-    <head>
 
-    </head>
-    <body>
-        <button id="openDirectoryButton">Open directory</button>
-    </body>
-    <script>
-        const app = {};
-        document.getElementById('openDirectoryButton').addEventListener('click', async () => {
-             app.directoryHandle = await window.showDirectoryPicker();
-             console.log(app.directoryHandle);
+<head>
+
+</head>
+
+<body>
+    <button id="openDirectoryButton">Open directory</button>
+
+    <div id="filesContainer">
+
+    </div>
+</body>
+
+<script src="./utilities.js" inline></script>
+<script>
+    const app = {};
+    const filesContainer = document.getElementById("filesContainer");
+
+    const temporaryFolder = 'temporary';
+
+    document.getElementById('openDirectoryButton').addEventListener('click', async () => {
+        // open directory picker
+        const rootDirectoryHandle = await window.showDirectoryPicker();
+        // list files recurisvely
+        app.fileInfos = await listFiles(rootDirectoryHandle);
+
+        // clear ui container
+        filesContainer.innerHTML = '';
+        const table = addTableToContainer(filesContainer);
+
+        app.fileInfos.forEach(async ({ handle, dirHandle }) => {
+            const filePath = await rootDirectoryHandle.resolve(handle)
+
+            const tr = document.createElement('tr');
+
+            const fileTd = document.createElement('td');
+            fileTd.appendChild(document.createTextNode(filePath.join('/')));
+            tr.appendChild(fileTd);
+
+
+            if (dirHandle.name !== temporaryFolder) {
+                const actionTd = document.createElement('td');
+                const button = document.createElement('button');
+                button.appendChild(document.createTextNode(`Move to /${temporaryFolder}`));
+                actionTd.appendChild(button);
+                tr.appendChild(actionTd);
+            }
+            table.appendChild(tr);
+
+
+            button.addEventListener('click', async () => {
+                // read stream
+                const file = await handle.getFile();
+
+                // create or get tmpDirectory
+                const tmpDirectory = await rootDirectoryHandle.getDirectoryHandle(`${temporaryFolder}`, { create: true });
+                const writable = await (await tmpDirectory.getFileHandle(handle.name, { create: true })).createWritable();
+                // write file
+                await writable.write(file);
+                writable.close();
+
+                await dirHandle.removeEntry(handle.name);
+            });
+
+            filesContainer.appendChild(li);
+
         });
-        
+
+    });
 
 
-    </script>
+
+
+    function addTableToContainer(container) {
+        // filesContainer
+
+        const table = document.createElement('Table');
+        const tr = document.createElement('tr');
+        table.appendChild(tr);
+
+        const fileTh = document.createElement('th');
+        fileTh.appendChild(document.createTextNode('File'));
+        const actionTh = document.createElement('th');
+        actionTh.appendChild(document.createTextNode(''));
+
+        tr.appendChild(fileTh, actionTh);
+
+
+        container.appendChild(table);
+        return table;
+    }
+
+</script>
+
 </html>
