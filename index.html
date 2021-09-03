@@ -45,24 +45,22 @@
                 button.appendChild(document.createTextNode(`Move to /${temporaryFolder}`));
                 actionTd.appendChild(button);
                 tr.appendChild(actionTd);
+
+                button.addEventListener('click', async () => {
+                    // read stream
+                    const file = await handle.getFile();
+
+                    // create or get tmpDirectory
+                    const tmpDirectory = await rootDirectoryHandle.getDirectoryHandle(`${temporaryFolder}`, { create: true });
+                    const writable = await (await tmpDirectory.getFileHandle(handle.name, { create: true })).createWritable();
+                    // write file
+                    await writable.write(file);
+                    writable.close();
+
+                    await dirHandle.removeEntry(handle.name);
+                });
             }
             table.appendChild(tr);
-
-
-            button.addEventListener('click', async () => {
-                // read stream
-                const file = await handle.getFile();
-
-                // create or get tmpDirectory
-                const tmpDirectory = await rootDirectoryHandle.getDirectoryHandle(`${temporaryFolder}`, { create: true });
-                const writable = await (await tmpDirectory.getFileHandle(handle.name, { create: true })).createWritable();
-                // write file
-                await writable.write(file);
-                writable.close();
-
-                await dirHandle.removeEntry(handle.name);
-            });
-
             filesContainer.appendChild(li);
 
         });
