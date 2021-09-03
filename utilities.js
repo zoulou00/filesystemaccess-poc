@@ -24,7 +24,7 @@ const listFiles = async (dirHandle) => {
 };
 
 const verifyPermission = async (handle) => {
-    const opts = { mode: 'read', writeable: true };
+    const opts = { mode: 'readwrite', writeable: true };
     console.log('queryPermission');
     console.log(await handle.queryPermission(opts));
     console.log('requestPermission');
